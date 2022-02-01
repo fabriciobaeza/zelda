@@ -5,6 +5,8 @@ kaboom({
   debug: true,
 });
 
+const MOVE_SPEED = 120
+
 loadRoot("https://i.imgur.com/");
 loadSprite("link-going-left", "1Xq9biB.png");
 loadSprite("link-going-right", "yZIb8O2.png");
@@ -88,6 +90,32 @@ scene("game", ({level, score}) => {
           dir: vec2(1,0)
       }
   ])
+
+  player.action(() => {
+    player.resolve()
+  })
+
+  keyDown('left' , () => {
+      player.changeSprite('link-going-left')
+      player.move(-MOVE_SPEED,0)
+      player.dir = vec2(-1,0)
+  })
+
+  keyDown('right' , () => {
+    player.changeSprite('link-going-right')
+    player.move(MOVE_SPEED,0)
+    player.dir = vec2(1,0) })
+
+  keyDown('up' , () => {
+    player.changeSprite('link-going-up')
+    player.move(0,-MOVE_SPEED)
+    player.dir = vec2(0,-1) })
+
+  keyDown('down' , () => {
+    player.changeSprite('link-going-down')
+    player.move(0,MOVE_SPEED)
+    player.dir = vec2(0,1)
+  })
 });
 
 start("game", {level: 0 , score: 0});
