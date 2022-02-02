@@ -5,7 +5,7 @@ kaboom({
   debug: true,
 });
 
-const MOVE_SPEED = 120
+const MOVE_SPEED = 120;
 
 loadRoot("https://i.imgur.com/");
 loadSprite("link-going-left", "1Xq9biB.png");
@@ -30,21 +30,33 @@ loadSprite("kaboom", "o9WizfI.png");
 loadSprite("stairs", "VghkL08.png");
 loadSprite("bg", "u4DVsx6.png");
 
-scene("game", ({level, score}) => {
+scene("game", ({ level, score }) => {
+  layers(["bg", "obj", "ui"], "obj");
 
-  layers(['bg', 'obj', 'ui'], 'obj')
-
-  const map = [
-      "ycc)cc^ccw", 
+  const maps = [
+    [
+      "ycc)cc^ccw",
+      "a        b",
+      "a        b",
+      "a    *   b",
+      "%      ( b",
+      "a   (    b",
+      "a  *     b",
+      "a        b",
+      "xdd)dd)ddz",
+    ],
+    [
+      "yccccccccw", 
+      "a        b", 
+      ")        )", 
       "a        b", 
       "a        b", 
-      "a    *   b", 
-      "%      ( b", 
-      "a   (    b", 
-      "a  *     b", 
+      "a    $   b", 
+      ")  }     )", 
       "a        b", 
-      "xdd)dd)ddz"
-    ];
+      "xddddddddz"
+    ],
+  ];
 
   const levelCfg = {
     width: 48,
@@ -57,65 +69,74 @@ scene("game", ({level, score}) => {
     'x': [sprite("bottom-left-wall"), solid()],
     'y': [sprite("top-left-wall"), solid()],
     'z': [sprite("bottom-right-wall"), solid()],
-    '%': [sprite("left-door"), solid()],
-    '^': [sprite("top-door")],
-    '$': [sprite("stairs")],
-    '*': [sprite("slicer")],
-    '}': [sprite("skeletor")],
-    ')': [sprite("lanterns"), solid()],
-    '(': [sprite("fire-pot"), solid()],
+    "%": [sprite("left-door"), solid()],
+    "^": [sprite("top-door"), "next-level"],
+    '$': [sprite("stairs"), "next-level"],
+    "*": [sprite("slicer")],
+    "}": [sprite("skeletor")],
+    ")": [sprite("lanterns"), solid()],
+    "(": [sprite("fire-pot"), solid()],
   };
 
-  addLevel(map, levelCfg);
+  addLevel(maps[level], levelCfg);
 
-  add(sprite[('bg'), layer('bg')])
+  add(sprite[("bg", layer("bg"))]);
 
-  add([
-      text('0'), 
-      pos(400, 450),
-      layer('ui'),
-      {
-          value: score
-      },
-      scale(2)
-  ])
+  const scoreLabel = add([
+    text("0"),
+    pos(400, 450),
+    layer("ui"),
+    {
+      value: score,
+    },
+    scale(2),
+  ]);
 
-  add([text('level ' + parseInt(level + 1)), pos(400,485), scale(2)])
+  add([text("level " + parseInt(level + 1)), pos(400, 485), scale(2)]);
 
   const player = add([
-      sprite('link-going-right'),
-      pos(5, 190),
-      {
-          //right by default
-          dir: vec2(1,0)
-      }
-  ])
+    sprite("link-going-right"),
+    pos(5, 190),
+    {
+      //right by default
+      dir: vec2(1, 0),
+    },
+  ]);
 
   player.action(() => {
-    player.resolve()
-  })
+    player.resolve();
+  });
 
-  keyDown('left' , () => {
-      player.changeSprite('link-going-left')
-      player.move(-MOVE_SPEED,0)
-      player.dir = vec2(-1,0)
-  })
+  player.overlaps("next-level", () => {
+    go("game", {
+      level: (level + 1) % maps.length,
+      score: scoreLabel.value,
+    });
+  });
 
-  keyDown('right' , () => {
-    player.changeSprite('link-going-right')
-    player.move(MOVE_SPEED,0)
-    player.dir = vec2(1,0) })
+  keyDown("left", () => {
+    player.changeSprite("link-going-left");
+    player.move(-MOVE_SPEED, 0);
+    player.dir = vec2(-1, 0);
+  });
 
-  keyDown('up' , () => {
-    player.changeSprite('link-going-up')
-    player.move(0,-MOVE_SPEED)
-    player.dir = vec2(0,-1) })
+  keyDown("right", () => {
+    player.changeSprite("link-going-right");
+    player.move(MOVE_SPEED, 0);
+    player.dir = vec2(1, 0);
+  });
 
-  keyDown('down' , () => {
-    player.changeSprite('link-going-down')
-    player.move(0,MOVE_SPEED)
-    player.dir = vec2(0,1)
-  })
+  keyDown("up", () => {
+    player.changeSprite("link-going-up");
+    player.move(0, -MOVE_SPEED);
+    player.dir = vec2(0, -1);
+  });
+
+  keyDown("down", () => {
+    player.changeSprite("link-going-down");
+    player.move(0, MOVE_SPEED);
+    player.dir = vec2(0, 1);
+  });
 });
 
-start("game", {level: 0 , score: 0});
+start("game", { level: 0, score: 0 });
